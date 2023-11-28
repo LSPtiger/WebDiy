@@ -1,3 +1,0 @@
-C:/Users/lenovo/Desktop/Code/diy-tcpip-master/code/start/build/CMakeFiles/net.dir
-C:/Users/lenovo/Desktop/Code/diy-tcpip-master/code/start/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/lenovo/Desktop/Code/diy-tcpip-master/code/start/build/CMakeFiles/ZERO_CHECK.dir
