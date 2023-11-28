@@ -76,11 +76,11 @@ static inline nlist_node_t * nlist_tail (nlist_t * list) {
 nlist_node_t * nlist_remove_node (nlist_t * list, nlist_node_t * node);
 
 static inline nlist_node_t * nlist_remove_head(nlist_t * list){
-    nlist_node_t * list_head = nlist_head(list);
-    if(list->head){
-        nlist_remove_node(list, list->head);
+    nlist_node_t * head = nlist_head(list);
+    if(head){
+        nlist_remove_node(list, head);
     }
-    return list_head;
+    return head;
 }
 
 

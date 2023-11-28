@@ -82,7 +82,7 @@ static void pktblock_free_list(pktblk_t * first){
     while (first)
     {
         pktblk_t * netx_block = pktblk_blk_next(first);
-        mblock_free(&block_list, first);
+        pktblock_free(first);
         first = netx_block;
     }
     
@@ -152,6 +152,7 @@ static void pktbuf_insert_blk_list(pktbuf_t * buf, pktblk_t * first_blk, int add
             }else{
                 nlist_insert_head(&buf->blk_list, &first_blk->node);
             }
+            buf->total_size += first_blk->size;
             pre = first_blk;
             first_blk = next_blk;
         }
@@ -228,25 +229,29 @@ static pktblock_free(pktblk_t * block){
 
 net_err_t pktbuf_remove_header(pktbuf_t * buf, int size){
     pktblk_t * block = pktbuf_first_blk(buf);
-    pktblk_t * next_block = pktblk_blk_next(block);
 
     while (size)
     {
+        pktblk_t * next_block = pktblk_blk_next(block);
         if(size < block->size){
             block->data += size;
             block->size -= size;
-            
+            buf->total_size -= size;
+            break;
         }
 
         int cursize = block->size;
-        pktblock_free(block);
+
         nlist_remove_head(&buf->blk_list);
+        pktblock_free(block);
+        
         size -= cursize;
         buf->total_size -= cursize;
         block = next_block;
 
     }
-
+     
+    display_check_buf(buf);
     return NET_ERR_OK;
     
 }
