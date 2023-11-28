@@ -87,16 +87,24 @@ void pktbuf_test(void){
 	pktbuf_free(buf);
 	
 	buf = pktbuf_alloc(2000);
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		pktbuf_add_header(buf, 33, 1);
 	}
 	
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		pktbuf_remove_header(buf, 33);
 	}
+	for (int i = 0; i < 3; i++)
+	{
+		pktbuf_add_header(buf, 33, 0);
+	}
 	
+	for (int i = 0; i < 3; i++)
+	{
+		pktbuf_remove_header(buf, 33);
+	}	
 }
 
 void mblock_test(void){

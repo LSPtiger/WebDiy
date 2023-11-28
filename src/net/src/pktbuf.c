@@ -203,7 +203,7 @@ net_err_t pktbuf_add_header(pktbuf_t * buf, int size, int cont){
         display_check_buf(buf);
         return NET_ERR_OK;
     }
-
+//"cont" means "continuous"
     if(cont){
         if (size > PKTBUF_BLK_SIZE)
         {
@@ -216,7 +216,16 @@ net_err_t pktbuf_add_header(pktbuf_t * buf, int size, int cont){
             return NET_ERR_NONE;
         }
     }else{
+        block->data = block->payload;
+        block->size += resv_size;
+        buf->total_size += resv_size;
+        size -= resv_size;
 
+        block = pktblock_alloc_list(size, 1);
+        if(!block){
+            dbg_error(DBG_BUF, "no buffer (size %d)", size);
+            return NET_ERR_NONE;
+        }
     }
     pktbuf_insert_blk_list(buf, block, 0);
     display_check_buf(buf);
