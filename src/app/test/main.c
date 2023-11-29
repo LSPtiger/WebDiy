@@ -123,6 +123,46 @@ void pktbuf_test(void){
 	pktbuf_join(buf, sbuf);
 	pktbuf_free(buf);
 
+	buf = pktbuf_alloc(32);
+    pktbuf_join(buf, pktbuf_alloc(4));
+    pktbuf_join(buf, pktbuf_alloc(16));
+    pktbuf_join(buf, pktbuf_alloc(54));
+    pktbuf_join(buf, pktbuf_alloc(32));
+	pktbuf_join(buf, pktbuf_alloc(38));
+
+	pktbuf_set_cont(buf, 44);
+	pktbuf_set_cont(buf, 60);
+	pktbuf_set_cont(buf, 64);
+	pktbuf_set_cont(buf, 128);
+	pktbuf_set_cont(buf, 135);
+	pktbuf_free(buf);
+
+	buf = pktbuf_alloc(32);
+    pktbuf_join(buf, pktbuf_alloc(4));
+    pktbuf_join(buf, pktbuf_alloc(16));
+    pktbuf_join(buf, pktbuf_alloc(54));
+    pktbuf_join(buf, pktbuf_alloc(32));
+	pktbuf_join(buf, pktbuf_alloc(38));
+	pktbuf_join(buf, pktbuf_alloc(512));
+
+	pktbuf_reset_acc(buf);
+	static uint16_t temp[1000];
+
+	for (int i = 0; i < 1000; i++)
+	{
+		temp[i] = i;
+	}
+	
+	pktbuf_write(buf, (uint8_t *)temp, pktbuf_total(buf));
+
+	pktbuf_reset_acc(buf);
+	static uint16_t read_temp[1000];
+	pktbuf_read(buf, (uint8_t *)read_temp, pktbuf_total(buf));
+	if(plat_memcmp(temp, read_temp, pktbuf_total(buf))){
+		plat_printf("not equal.");
+		return;
+	}
+
 
 }
 
