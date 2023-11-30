@@ -7,6 +7,8 @@
 #include "nlocker.h"
 #include "mblock.h"
 #include "pktbuf.h"
+#include "netif.h"
+
 static sys_sem_t read_sem, write_sem;
 static int count;
 static sys_mutex_t mutex;
