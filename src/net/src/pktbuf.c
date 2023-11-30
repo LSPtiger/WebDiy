@@ -192,7 +192,8 @@ pktbuf_t *pktbuf_alloc(int size){
         }
         pktbuf_insert_blk_list(buf, block, 1);
     }
-    
+    pktbuf_reset_acc(buf);
+
     display_check_buf(buf);
     return buf;
 }
@@ -477,6 +478,33 @@ int pktbuf_write(pktbuf_t * buf, uint8_t * src, int size){
     return NET_ERR_OK;
 }
 
+net_err_t pktbuf_fill(pktbuf_t * buf, uint8_t v, int size){
+    if(!size){
+        return NET_ERR_PARAM;
+    }
+
+    int remain_size = total_blk_remain(buf);
+    if (remain_size < size)
+    {
+        dbg_error(DBG_BUF, "size error: %d < %d", remain_size, size);
+        return NET_ERR_SIZE;
+    }
+
+    while (size)
+    {
+        int blk_size = curr_blk_remain(buf);
+        int curr_fill = size > blk_size ? blk_size : size;
+        plat_memset(buf->blk_offset, v, curr_fill);
+
+        size -= curr_fill;
+        move_forward(buf, curr_fill);
+    }
+    
+    return NET_ERR_OK;
+
+}
+
+
 net_err_t pktbuf_read(pktbuf_t * buf, uint8_t * dest, int size){
     if(!dest || !size){
         return NET_ERR_PARAM;
@@ -505,4 +533,59 @@ net_err_t pktbuf_read(pktbuf_t * buf, uint8_t * dest, int size){
     }
     return NET_ERR_OK; 
  
+}
+
+net_err_t pktbuf_seek(pktbuf_t * buf, int offset){
+    if(buf->pos == offset){
+        return NET_ERR_OK;
+    }
+
+    if((offset < 0) || (offset >= buf->total_size)){
+        return NET_ERR_SIZE;
+    }
+    int move_bytes;
+    if(offset < buf->pos){
+        buf->curr_blk = pktbuf_first_blk(buf);
+        buf->blk_offset = buf->curr_blk->data;
+        buf->pos = 0;
+
+        move_bytes = offset;
+    }else{
+         move_bytes = offset - buf->pos;
+    }
+
+    while (move_bytes)
+    {
+        int remain_size = curr_blk_remain(buf);
+        int curr_move = move_bytes > remain_size ? remain_size : move_bytes;
+
+        move_forward(buf, curr_move);
+        move_bytes -= curr_move;
+    }
+    return NET_ERR_OK;
+}
+
+
+net_err_t pktbuf_copy(pktbuf_t * dest, pktbuf_t * src, int size){
+    if(total_blk_remain(dest) < size || (total_blk_remain(src) < size)){
+        return NET_ERR_SIZE;
+    }
+
+    while (size)
+    {
+        int dest_remain = curr_blk_remain(dest);
+        int src_remain = curr_blk_remain(src);
+        int copy_size = dest_remain > src_remain ? src_remain : dest_remain;
+
+        copy_size = copy_size > size ? size : copy_size;
+
+        plat_memcpy(dest->blk_offset, src->blk_offset, copy_size);
+
+        move_forward(dest, copy_size);
+        move_forward(src, copy_size);
+        size -= copy_size;
+    }
+    
+
+    return NET_ERR_OK;
 }
