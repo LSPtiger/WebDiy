@@ -242,6 +242,7 @@ void basic_test(void){
 	mblock_test();
 	pktbuf_test();
 
+	netif_t * netif = netif_open("pcap");
 	
 }
 net_err_t netdev_init(void)
